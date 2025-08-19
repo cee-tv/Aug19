@@ -5,6 +5,7 @@ import argparse
 from datetime import datetime, timedelta
 import hashlib
 import base64
+import os
 
 
 class KeyGenerator:
