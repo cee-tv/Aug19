@@ -1,0 +1,61 @@
+name: Generate Authentication Keys
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'Duration amount'
+        required: true
+        default: '1'
+      unit:
+        description: 'Duration unit'
+        required: true
+        default: 'years'
+        type: choice
+        options:
+          - days
+          - weeks
+          - months
+          - years
+      key_count:
+        description: 'Number of keys to generate'
+        required: false
+        default: '1'
+
+jobs:
+  generate-keys:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        
+    - name: Generate keys
+      run: |
+        for i in $(seq 1 ${{ github.event.inputs.key_count }}); do
+          python generatekey.py --duration ${{ github.event.inputs.duration }} --unit ${{ github.event.inputs.unit }}
+        done
+        
+    - name: Upload generated keys
+      uses: actions/upload-artifact@v3
+      with:
+        name: generated-keys
+        path: keys.json
+        
+    - name: Commit keys to repository
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add keys.json
+        git diff --staged --quiet || git commit -m "Add generated authentication keys"
+        git push
+
