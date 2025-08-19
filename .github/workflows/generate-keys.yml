@@ -51,14 +51,14 @@ jobs:
     - name: Upload generated keys
       uses: actions/upload-artifact@v4
       with:
-        name: generated-keys
-        path: keys.json
+        name: generated-keys-${{ github.run_number }}
+        path: keys/
         
     - name: Commit keys to repository
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add keys.json || true
-        git diff --staged --quiet || git commit -m "Add generated authentication keys - ${{ github.event.inputs.duration }} ${{ github.event.inputs.unit }}"
+        git add keys/ || true
+        git diff --staged --quiet || git commit -m "Add generated authentication keys - ${{ github.event.inputs.duration }} ${{ github.event.inputs.unit }} - Run #${{ github.run_number }}"
         git push
 
